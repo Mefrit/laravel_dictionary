@@ -2085,10 +2085,10 @@ react_dom_1["default"].render(react_1["default"].createElement(App_1["default"],
 
 /***/ }),
 
-/***/ "./resources/js/components/App.tsx":
-/*!*****************************************!*\
-  !*** ./resources/js/components/App.tsx ***!
-  \*****************************************/
+/***/ "./resources/js/components/AddDictionary.tsx":
+/*!***************************************************!*\
+  !*** ./resources/js/components/AddDictionary.tsx ***!
+  \***************************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -2140,42 +2140,302 @@ Object.defineProperty(exports, "__esModule", ({
 
 var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 
+var AddDictionaryComponent = function AddDictionaryComponent() {
+  (0, react_1.useEffect)(function () {
+    // Обновляем название докуммента, используя API браузера
+    console.log("mount");
+  }, []);
+  return react_1["default"].createElement("form", {
+    encType: "multipart/form-data",
+    method: 'post',
+    className: " col-5 d-flex flex-column ",
+    action: "/dictionary/add"
+  }, react_1["default"].createElement("label", {
+    className: " btn btn-default rounded-1"
+  }, "\u0412\u044B\u0431\u0440\u0430\u0442\u044C EXEL \u0444\u0430\u0439\u043B", react_1["default"].createElement("input", {
+    type: "file",
+    title: " ",
+    name: "file_dictionary",
+    className: "form-file-input btn "
+  })), react_1["default"].createElement("input", {
+    type: "text",
+    name: "name_dictionary",
+    placeholder: 'name dictionary'
+  }), react_1["default"].createElement("input", {
+    type: "submit",
+    value: "Загрузить словарь"
+  }));
+};
+
+exports["default"] = AddDictionaryComponent;
+
+/***/ }),
+
+/***/ "./resources/js/components/App.tsx":
+/*!*****************************************!*\
+  !*** ./resources/js/components/App.tsx ***!
+  \*****************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  var desc = Object.getOwnPropertyDescriptor(m, k);
+
+  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+    desc = {
+      enumerable: true,
+      get: function get() {
+        return m[k];
+      }
+    };
+  }
+
+  Object.defineProperty(o, k2, desc);
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) {
+    if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+  }
+
+  __setModuleDefault(result, mod);
+
+  return result;
+};
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+
+var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+var AddDictionary_1 = __importDefault(__webpack_require__(/*! ./AddDictionary */ "./resources/js/components/AddDictionary.tsx"));
+
+var ChoseDictionary_1 = __importDefault(__webpack_require__(/*! ./ChoseDictionary */ "./resources/js/components/ChoseDictionary.tsx"));
+
 var App = function App() {
   var _a = (0, react_1.useState)([]),
       users = _a[0],
       setUsers = _a[1];
 
+  var _b = (0, react_1.useState)([]),
+      list_dictionary = _b[0],
+      setListDicionary = _b[1];
+
+  var _c = (0, react_1.useState)("add"),
+      mode_dictionary = _c[0],
+      setModeDictionary = _c[1];
+
+  var _d = (0, react_1.useState)("english"),
+      mode_translate_word = _d[0],
+      setModeTranslateWord = _d[1];
+
   (0, react_1.useEffect)(function () {
     // Обновляем название докуммента, используя API браузера
-    console.log("mount");
+    console.log("mount", mode_dictionary, mode_translate_word);
+    var response = fetch('/load_dictionary', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({})
+    }).then(function (answer) {
+      console.log("answer");
+    });
+  }, [mode_dictionary, mode_translate_word]);
+
+  function postJSON(url, args) {
+    try {
+      return fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8"
+        },
+        body: JSON.stringify(__assign({}, args))
+      }).then(function (response) {
+        if (response.status == 401) {
+          return {
+            result: false,
+            message: "Вы не вошли в систему, пожалуйста, авторизуйтесь"
+          };
+        } else {
+          return response.json();
+        }
+      }).then(function (data) {
+        return data;
+      });
+    } catch (err) {
+      alert("Error11 " + err.toString());
+      return null;
+    }
+  }
+
+  (0, react_1.useEffect)(function () {
+    // Обновляем название докуммента, используя API браузера
+    console.log("mount", mode_dictionary, mode_translate_word);
+    postJSON('/dictionary/load', {}).then(function (answer) {
+      console.log("answer", answer);
+    });
   }, []);
   return react_1["default"].createElement("div", {
     className: "container d-flex p-2 justify-content-center flex-column"
-  }, react_1["default"].createElement("form", {
-    className: " row",
-    method: "post"
-  }, react_1["default"].createElement("div", {
-    className: " col-5 d-flex justify-content-around"
-  }, react_1["default"].createElement("button", {
-    className: " btn btn-secondary rounded-1"
-  }, "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C"), react_1["default"].createElement("label", {
-    className: " btn btn-secondary  rounded-1"
-  }, react_1["default"].createElement("input", {
-    type: "file",
-    title: " ",
-    name: "files",
-    className: "form-file-input"
-  }), "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C")), react_1["default"].createElement("div", {
+  }, react_1["default"].createElement("ul", {
+    className: "nav nav-tabs"
+  }, react_1["default"].createElement("li", {
+    className: "nav-item",
+    onClick: function onClick() {
+      setModeDictionary("chose");
+    }
+  }, react_1["default"].createElement("a", {
+    className: mode_dictionary == "chose" ? "nav-link active" : "nav-link",
+    "aria-current": "page",
+    href: "#"
+  }, "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C")), react_1["default"].createElement("li", {
+    className: "nav-item",
+    onClick: function onClick() {
+      setModeDictionary("add");
+    }
+  }, react_1["default"].createElement("a", {
+    className: mode_dictionary == "add" ? "nav-link active" : "nav-link",
+    href: "#"
+  }, "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C"))), mode_dictionary == "add" ? react_1["default"].createElement(AddDictionary_1["default"], null) : react_1["default"].createElement(ChoseDictionary_1["default"], {
+    list_dicionary: list_dictionary,
+    setModeDictionary: setModeDictionary
+  }), react_1["default"].createElement("div", {
     className: "form-check form-switch col-1"
   }, react_1["default"].createElement("label", {
     className: "form-check-label"
   }, react_1["default"].createElement("input", {
     className: "form-check-input",
+    onChange: function onChange(ev) {
+      setModeTranslateWord(ev.target.checked ? "english" : "russian");
+    },
     type: "checkbox"
-  }), "Rus/Eng"))), react_1["default"].createElement("div", null, react_1["default"].createElement("p", null, "word1"), react_1["default"].createElement("p", null, "*****")), react_1["default"].createElement("div", null, react_1["default"].createElement("button", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u043F\u0435\u0440\u0435\u0432\u043E\u0434"), react_1["default"].createElement("button", null, "\u0421\u043B\u0435\u0434\u0443\u044E\u0449\u0435\u0435 \u0441\u043B\u043E\u0432\u043E")), react_1["default"].createElement("p", null, "\u0422\u0435\u043A\u0443\u0449\u0438\u0439 \u0441\u043B\u043E\u0432\u0430\u0440\u044C"));
+  }), "Rus/Eng")), react_1["default"].createElement("div", null, react_1["default"].createElement("p", null, "word1"), react_1["default"].createElement("p", null, "*****")), react_1["default"].createElement("div", null, react_1["default"].createElement("button", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u043F\u0435\u0440\u0435\u0432\u043E\u0434"), react_1["default"].createElement("button", null, "\u0421\u043B\u0435\u0434\u0443\u044E\u0449\u0435\u0435 \u0441\u043B\u043E\u0432\u043E")), react_1["default"].createElement("p", null, "\u0422\u0435\u043A\u0443\u0449\u0438\u0439 \u0441\u043B\u043E\u0432\u0430\u0440\u044C"));
 };
 
 exports["default"] = App;
+
+/***/ }),
+
+/***/ "./resources/js/components/ChoseDictionary.tsx":
+/*!*****************************************************!*\
+  !*** ./resources/js/components/ChoseDictionary.tsx ***!
+  \*****************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  var desc = Object.getOwnPropertyDescriptor(m, k);
+
+  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+    desc = {
+      enumerable: true,
+      get: function get() {
+        return m[k];
+      }
+    };
+  }
+
+  Object.defineProperty(o, k2, desc);
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) {
+    if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+  }
+
+  __setModuleDefault(result, mod);
+
+  return result;
+};
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+
+var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+var ChoseDictionaryComponent = function ChoseDictionaryComponent(props) {
+  (0, react_1.useEffect)(function () {
+    // Обновляем название докуммента, используя API браузера
+    console.log("mount");
+  }, []);
+
+  var renderlistDictionary = function renderlistDictionary(list_dictionary) {
+    return list_dictionary.map(function (elem) {
+      return react_1["default"].createElement("li", null, elem);
+    });
+  };
+
+  return (// justify-content-around
+    react_1["default"].createElement("div", {
+      className: " col-5 d-flex "
+    }, react_1["default"].createElement("input", {
+      type: "button",
+      value: "Выбрать словарь",
+      className: "btn btn-secondary rounded-1"
+    }))
+  );
+};
+
+exports["default"] = ChoseDictionaryComponent;
 
 /***/ }),
 

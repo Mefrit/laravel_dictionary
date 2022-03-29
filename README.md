@@ -63,16 +63,13 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
-npm install
-composer install
+1. npm install
+2. composer install
+3. DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=laravel
+   DB_USERNAME=root
+   DB_PASSWORD=
 
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=laravel
-DB_USERNAME=root
-DB_PASSWORD=
-
-TO DB_CONNECTION=sqlite
-
-php artisan key:generate
+TO DB_CONNECTION=sqlite 4) php artisan key:generate 5) create database/database.sqlite 6) php artisan migrate
