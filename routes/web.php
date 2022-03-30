@@ -19,9 +19,11 @@ Route::get('/about', [MainController::class, 'about']);
 
 Route::get('/rewiew', [MainController::class, 'rewiew']);
 
-Route::post('/dictionary', [MainController::class, 'addDictionary']);
 Route::post('/dictionary/add', [MainController::class, 'addDictionary']);
 Route::post('/dictionary/load', [MainController::class, 'loadDictionaries']);
+Route::post('/dictionary/loadDictionaryWords', [MainController::class, 'loadDictionaryWords']);
+
+
 // Route::get('/test/{id}/{name}', function ($id, $name) {
 //     return "$id + $name";
 // });

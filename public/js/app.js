@@ -2252,6 +2252,8 @@ var AddDictionary_1 = __importDefault(__webpack_require__(/*! ./AddDictionary */
 
 var ChoseDictionary_1 = __importDefault(__webpack_require__(/*! ./ChoseDictionary */ "./resources/js/components/ChoseDictionary.tsx"));
 
+var WordsChoser_1 = __importDefault(__webpack_require__(/*! ./WordsChoser */ "./resources/js/components/WordsChoser.tsx"));
+
 var App = function App() {
   var _a = (0, react_1.useState)([]),
       users = _a[0],
@@ -2261,17 +2263,17 @@ var App = function App() {
       list_dictionary = _b[0],
       setListDicionary = _b[1];
 
-  var _c = (0, react_1.useState)("add"),
-      mode_dictionary = _c[0],
-      setModeDictionary = _c[1];
+  var _c = (0, react_1.useState)([]),
+      list_words = _c[0],
+      setListWords = _c[1];
 
-  var _d = (0, react_1.useState)("english"),
-      mode_translate_word = _d[0],
-      setModeTranslateWord = _d[1];
+  var _d = (0, react_1.useState)("chose"),
+      mode_dictionary = _d[0],
+      setModeDictionary = _d[1];
 
   (0, react_1.useEffect)(function () {
     // Обновляем название докуммента, используя API браузера
-    console.log("mount", mode_dictionary, mode_translate_word);
+    console.log("mount11111111", mode_dictionary, list_words);
     var response = fetch('/load_dictionary', {
       method: 'POST',
       headers: {
@@ -2279,9 +2281,11 @@ var App = function App() {
       },
       body: JSON.stringify({})
     }).then(function (answer) {
-      console.log("answer");
+      if (answer.result) {
+        setListDicionary(answer.list);
+      }
     });
-  }, [mode_dictionary, mode_translate_word]);
+  }, [mode_dictionary, list_words]);
 
   function postJSON(url, args) {
     try {
@@ -2311,11 +2315,25 @@ var App = function App() {
 
   (0, react_1.useEffect)(function () {
     // Обновляем название докуммента, используя API браузера
-    console.log("mount", mode_dictionary, mode_translate_word);
     postJSON('/dictionary/load', {}).then(function (answer) {
-      console.log("answer", answer);
+      if (answer.result) {
+        setListDicionary(answer.list);
+      }
     });
   }, []);
+
+  var choseDictionary = function choseDictionary(id_dictionary) {
+    postJSON('/dictionary/loadDictionaryWords', {
+      id_dictionary: id_dictionary
+    }).then(function (answer) {
+      console.log("/dictionary/loadDictionaryWords", answer);
+
+      if (answer.result) {
+        setListWords(answer.list);
+      }
+    });
+  };
+
   return react_1["default"].createElement("div", {
     className: "container d-flex p-2 justify-content-center flex-column"
   }, react_1["default"].createElement("ul", {
@@ -2338,19 +2356,12 @@ var App = function App() {
     className: mode_dictionary == "add" ? "nav-link active" : "nav-link",
     href: "#"
   }, "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C"))), mode_dictionary == "add" ? react_1["default"].createElement(AddDictionary_1["default"], null) : react_1["default"].createElement(ChoseDictionary_1["default"], {
-    list_dicionary: list_dictionary,
+    list_dictionary: list_dictionary,
+    choseDictionary: choseDictionary,
     setModeDictionary: setModeDictionary
-  }), react_1["default"].createElement("div", {
-    className: "form-check form-switch col-1"
-  }, react_1["default"].createElement("label", {
-    className: "form-check-label"
-  }, react_1["default"].createElement("input", {
-    className: "form-check-input",
-    onChange: function onChange(ev) {
-      setModeTranslateWord(ev.target.checked ? "english" : "russian");
-    },
-    type: "checkbox"
-  }), "Rus/Eng")), react_1["default"].createElement("div", null, react_1["default"].createElement("p", null, "word1"), react_1["default"].createElement("p", null, "*****")), react_1["default"].createElement("div", null, react_1["default"].createElement("button", null, "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u043F\u0435\u0440\u0435\u0432\u043E\u0434"), react_1["default"].createElement("button", null, "\u0421\u043B\u0435\u0434\u0443\u044E\u0449\u0435\u0435 \u0441\u043B\u043E\u0432\u043E")), react_1["default"].createElement("p", null, "\u0422\u0435\u043A\u0443\u0449\u0438\u0439 \u0441\u043B\u043E\u0432\u0430\u0440\u044C"));
+  }), react_1["default"].createElement(WordsChoser_1["default"], {
+    list_words: list_words
+  }));
 };
 
 exports["default"] = App;
@@ -2413,29 +2424,167 @@ Object.defineProperty(exports, "__esModule", ({
 var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 
 var ChoseDictionaryComponent = function ChoseDictionaryComponent(props) {
+  console.log("mount22222", props);
   (0, react_1.useEffect)(function () {
     // Обновляем название докуммента, используя API браузера
-    console.log("mount");
+    console.log("mount", props);
   }, []);
 
   var renderlistDictionary = function renderlistDictionary(list_dictionary) {
     return list_dictionary.map(function (elem) {
-      return react_1["default"].createElement("li", null, elem);
+      return react_1["default"].createElement("li", {
+        key: "dict_" + elem.id,
+        onClick: function onClick() {
+          props.choseDictionary(elem.id);
+        }
+      }, react_1["default"].createElement("input", {
+        type: "button",
+        key: "dict_INp_" + elem.id,
+        value: elem.name,
+        className: "btn btn-secondary rounded-1"
+      }));
     });
   };
 
   return (// justify-content-around
     react_1["default"].createElement("div", {
       className: " col-5 d-flex "
-    }, react_1["default"].createElement("input", {
-      type: "button",
-      value: "Выбрать словарь",
-      className: "btn btn-secondary rounded-1"
-    }))
+    }, react_1["default"].createElement("ul", null, renderlistDictionary(props.list_dictionary)))
   );
 };
 
 exports["default"] = ChoseDictionaryComponent;
+
+/***/ }),
+
+/***/ "./resources/js/components/WordsChoser.tsx":
+/*!*************************************************!*\
+  !*** ./resources/js/components/WordsChoser.tsx ***!
+  \*************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  var desc = Object.getOwnPropertyDescriptor(m, k);
+
+  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+    desc = {
+      enumerable: true,
+      get: function get() {
+        return m[k];
+      }
+    };
+  }
+
+  Object.defineProperty(o, k2, desc);
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) {
+    if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+  }
+
+  __setModuleDefault(result, mod);
+
+  return result;
+};
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+
+var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+var WordsChoser = function WordsChoser(props) {
+  var _a = (0, react_1.useState)(false),
+      show_translate = _a[0],
+      setShowTranslate = _a[1];
+
+  var _b = (0, react_1.useState)(0),
+      index_word = _b[0],
+      setIndexWord = _b[1];
+
+  var _c = (0, react_1.useState)("russian"),
+      mode_translate_word = _c[0],
+      setModeTranslateWord = _c[1];
+
+  (0, react_1.useEffect)(function () {
+    // Обновляем название докуммента, используя API браузера
+    console.log("mount", props);
+  }, [index_word]);
+
+  var renderInterface = function renderInterface(index_word, list_words) {
+    // return list_dictionary.map((elem: any) => {
+    //     return <li onClick={() => { props.choseDictionary(elem.id) }
+    //     }>{<input type="button" value={elem.name} className="btn btn-secondary rounded-1" />}</li>
+    // })
+    return react_1["default"].createElement("div", null, react_1["default"].createElement("div", {
+      className: "form-check form-switch col-1"
+    }, react_1["default"].createElement("label", {
+      className: "form-check-label"
+    }, react_1["default"].createElement("input", {
+      className: "form-check-input",
+      onChange: function onChange(ev) {
+        setShowTranslate(false);
+        setModeTranslateWord(ev.target.checked ? "english" : "russian");
+      },
+      type: "checkbox"
+    }), "Rus/Eng")), react_1["default"].createElement("div", {
+      className: 'd-flex flex-column p-1 '
+    }, react_1["default"].createElement("input", {
+      type: "button",
+      disabled: true,
+      value: mode_translate_word == 'english' ? list_words[index_word].english_word : list_words[index_word].russian_word,
+      className: "btn btn-primary disabled"
+    }), react_1["default"].createElement("input", {
+      type: show_translate ? "button" : "password",
+      disabled: true,
+      value: mode_translate_word == 'english' ? list_words[index_word].russian_word : list_words[index_word].english_word,
+      className: "btn btn-primary disabled"
+    })), react_1["default"].createElement("div", {
+      className: 'd-flex'
+    }, react_1["default"].createElement("button", {
+      onClick: function onClick() {
+        setShowTranslate(false);
+        setIndexWord(index_word > 0 ? index_word - 1 : props.list_words.length - 1);
+      }
+    }, "\u041D\u0430\u0437\u0430\u0434"), react_1["default"].createElement("button", {
+      onClick: function onClick() {
+        setShowTranslate(!show_translate);
+      }
+    }, show_translate ? "Скрыть перевод" : "Показать перевод"), react_1["default"].createElement("button", {
+      onClick: function onClick() {
+        setShowTranslate(false);
+        setIndexWord(index_word < props.list_words.length - 1 ? index_word + 1 : 0);
+      }
+    }, "\u0412\u043F\u0435\u0440\u0435\u0434")));
+  };
+
+  return (// justify-content-around
+    react_1["default"].createElement("div", {
+      className: " col-5 d-flex "
+    }, props.list_words.length == 0 ? react_1["default"].createElement("h5", null, "\u0421\u043F\u0438\u0441\u043E\u043A \u0441\u043B\u043E\u0432 \u043F\u0443\u0441\u0442. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043B\u043E\u0432\u0430\u0440\u044C") : renderInterface(index_word, props.list_words))
+  );
+};
+
+exports["default"] = WordsChoser;
 
 /***/ }),
 
@@ -49703,7 +49852,7 @@ if (false) {} else {
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"_from":"axios@^0.21","_id":"axios@0.21.4","_inBundle":false,"_integrity":"sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==","_location":"/axios","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"axios@^0.21","name":"axios","escapedName":"axios","rawSpec":"^0.21","saveSpec":null,"fetchSpec":"^0.21"},"_requiredBy":["#DEV:/"],"_resolved":"https://registry.npmjs.org/axios/-/axios-0.21.4.tgz","_shasum":"c67b90dc0568e5c1cf2b0b858c43ba28e2eda575","_spec":"axios@^0.21","_where":"D:\\\\Mihail\\\\projects\\\\www\\\\englishdictionary","author":{"name":"Matt Zabriskie"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"bugs":{"url":"https://github.com/axios/axios/issues"},"bundleDependencies":false,"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}],"dependencies":{"follow-redirects":"^1.14.0"},"deprecated":false,"description":"Promise based HTTP client for the browser and node.js","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"homepage":"https://axios-http.com","jsdelivr":"dist/axios.min.js","keywords":["xhr","http","ajax","promise","node"],"license":"MIT","main":"index.js","name":"axios","repository":{"type":"git","url":"git+https://github.com/axios/axios.git"},"scripts":{"build":"NODE_ENV=production grunt build","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","examples":"node ./examples/server.js","fix":"eslint --fix lib/**/*.js","postversion":"git push && git push --tags","preversion":"npm test","start":"node ./sandbox/server.js","test":"grunt test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},"typings":"./index.d.ts","unpkg":"dist/axios.min.js","version":"0.21.4"}');
+module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"Promise based HTTP client for the browser and node.js","main":"index.js","scripts":{"test":"grunt test","start":"node ./sandbox/server.js","build":"NODE_ENV=production grunt build","preversion":"npm test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json","postversion":"git push && git push --tags","examples":"node ./examples/server.js","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","fix":"eslint --fix lib/**/*.js"},"repository":{"type":"git","url":"https://github.com/axios/axios.git"},"keywords":["xhr","http","ajax","promise","node"],"author":"Matt Zabriskie","license":"MIT","bugs":{"url":"https://github.com/axios/axios/issues"},"homepage":"https://axios-http.com","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"jsdelivr":"dist/axios.min.js","unpkg":"dist/axios.min.js","typings":"./index.d.ts","dependencies":{"follow-redirects":"^1.14.0"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}]}');
 
 /***/ })
 

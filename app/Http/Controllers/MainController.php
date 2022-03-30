@@ -67,10 +67,17 @@ class MainController extends Controller {
         }
 
 
-        return view('home');
+        return redirect('/');;
     }
     public function loadDictionaries(Request $request) {
         $dictionaries = DB::table('dictionaries')->get();
         return json_encode(["result" => true, "list" => $dictionaries]);
+    }
+    public function loadDictionaryWords(Request $request){
+        $id_dictionary = $request->input("id_dictionary");
+        $listwords = DB::table('dictionary_words')->where('id_dictionary', '=',  $id_dictionary)->get();
+        //  ->where('votes', '=', 100)
+        //         ->where('age', '>', 35)
+        return json_encode(["result" => true, "list" =>  $listwords]);
     }
 }

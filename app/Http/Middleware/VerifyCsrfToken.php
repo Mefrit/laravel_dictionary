@@ -14,6 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         //
         '/dictionary/add',
-        '/dictionary/load'
+        '/dictionary/load',
+        '/dictionary/loadDictionaryWords'
     ];
 }

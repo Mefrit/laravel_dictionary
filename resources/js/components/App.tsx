@@ -1,28 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import AddDictionaryComponent from "./AddDictionary"
 import ChoseDictionaryComponent from "./ChoseDictionary"
+import WordsChoser from "./WordsChoser";
 export interface IUser {
     name: string;
     age: number;
 }
 const App = () => {
     const [users, setUsers] = useState<IUser[]>([]);
-    const [list_dictionary, setListDicionary] = useState<[]>([]);
-    const [mode_dictionary, setModeDictionary] = useState<string>("add");
-    const [mode_translate_word, setModeTranslateWord] = useState<string>("english");
+    const [list_dictionary, setListDicionary] = useState([]);
+    const [list_words, setListWords] = useState([]);
+    const [mode_dictionary, setModeDictionary] = useState<string>("chose");
+
     useEffect(() => {
         // Обновляем название докуммента, используя API браузера
-        console.log("mount", mode_dictionary, mode_translate_word)
+        console.log("mount11111111", mode_dictionary, list_words)
         let response = fetch('/load_dictionary', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
             },
             body: JSON.stringify({})
-        }).then(answer => {
-            console.log("answer")
+        }).then((answer: any) => {
+            if (answer.result) {
+                setListDicionary(answer.list)
+            }
         });
-    }, [mode_dictionary, mode_translate_word]);
+    }, [mode_dictionary, list_words]);
     function postJSON(url: any, args: any): any {
 
         try {
@@ -49,12 +53,24 @@ const App = () => {
     }
     useEffect(() => {
         // Обновляем название докуммента, используя API браузера
-        console.log("mount", mode_dictionary, mode_translate_word)
         postJSON('/dictionary/load', {})
             .then((answer: any) => {
-                console.log("answer", answer)
+                if (answer.result) {
+
+                    setListDicionary(answer.list)
+                }
             });
     }, []);
+    const choseDictionary = (id_dictionary: any) => {
+        postJSON('/dictionary/loadDictionaryWords', { id_dictionary: id_dictionary })
+            .then((answer: any) => {
+                console.log("/dictionary/loadDictionaryWords", answer);
+                if (answer.result) {
+                    setListWords(answer.list);
+                }
+            });
+    };
+
     return (
         <div className="container d-flex p-2 justify-content-center flex-column">
 
@@ -68,22 +84,11 @@ const App = () => {
             </ul>
 
 
-            {mode_dictionary == "add" ? <AddDictionaryComponent /> : <ChoseDictionaryComponent list_dicionary={list_dictionary} setModeDictionary={setModeDictionary} />}
+            {mode_dictionary == "add" ? <AddDictionaryComponent /> : <ChoseDictionaryComponent list_dictionary={list_dictionary} choseDictionary={choseDictionary} setModeDictionary={setModeDictionary} />}
+            <WordsChoser list_words={list_words} />
 
-            <div className="form-check form-switch col-1">
-                <label className="form-check-label" >
-                    <input className="form-check-input" onChange={(ev) => { setModeTranslateWord(ev.target.checked ? "english" : "russian") }} type="checkbox" />Rus/Eng</label>
-            </div>
 
-            <div>
-                <p>word1</p>
-                <p>*****</p>
-            </div>
-            <div>
-                <button>Показать перевод</button>
-                <button>Следующее слово</button>
-            </div>
-            <p>Текущий словарь</p>
+
         </div>
     );
 };
