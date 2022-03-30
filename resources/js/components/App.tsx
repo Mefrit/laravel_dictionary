@@ -23,7 +23,7 @@ const App = () => {
             console.log("answer")
         });
     }, [mode_dictionary, mode_translate_word]);
-    function postJSON(url: any, args: any) {
+    function postJSON(url: any, args: any): any {
 
         try {
             return fetch(url, {
