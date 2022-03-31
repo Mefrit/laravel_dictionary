@@ -1,23 +1,19 @@
 import React, { useState, useEffect } from 'react';
-
 const ChoseDictionaryComponent = (props: any) => {
-    console.log("mount22222", props)
-    useEffect(() => {
-        // Обновляем название докуммента, используя API браузера
-        console.log("mount", props)
-    }, []);
+    const [chosen_id_dictionary, setChosenId] = useState(-1)
     const renderlistDictionary = (list_dictionary: any) => {
         return list_dictionary.map((elem: any) => {
-            return <li key={"dict_" + elem.id} onClick={() => { props.choseDictionary(elem.id) }
-            }>{<input type="button" key={"dict_INp_" + elem.id} value={elem.name} className="btn btn-secondary rounded-1" />}</li>
+            return <li key={"dict_" + elem.id} className={chosen_id_dictionary == elem.id ? "list-group-item list-group-item-action cutsor-pointer active rounded-1" : "list-group-item list-group-item-action cutsor-pointer"} onClick={() => { setChosenId(elem.id); props.choseDictionary(elem.id) }}>
+                <a href="#" className={chosen_id_dictionary == elem.id ? "link-light rounded-1" : "link-dark"} key={"dict_INp_" + elem.id} >{elem.name} </a></li>
         })
     }
     return (
-        // justify-content-around
-        <div className=" col-5 d-flex ">
-            <ul>{renderlistDictionary(props.list_dictionary)}</ul>
+        <div className=" col-3 d-flex ">
+            <ul className='d-flex flex-column list-group h-75 overflow-auto'>
+                <a href="#" className="list-group-item list-group-item-action disabled">Словари</a>
+                {renderlistDictionary(props.list_dictionary)}
+            </ul>
         </div>
-
     );
 };
 

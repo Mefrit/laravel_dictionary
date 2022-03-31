@@ -2148,21 +2148,25 @@ var AddDictionaryComponent = function AddDictionaryComponent() {
   return react_1["default"].createElement("form", {
     encType: "multipart/form-data",
     method: 'post',
-    className: " col-5 d-flex flex-column ",
+    className: " col-5 d-flex flex-column form-group justify-content-evenly h-50 w-100   align-items-center",
     action: "/dictionary/add"
   }, react_1["default"].createElement("label", {
-    className: " btn btn-default rounded-1"
-  }, "\u0412\u044B\u0431\u0440\u0430\u0442\u044C EXEL \u0444\u0430\u0439\u043B", react_1["default"].createElement("input", {
+    className: "d-flex flex-column justify-content-center"
+  }, react_1["default"].createElement("p", {
+    className: "text-center"
+  }, "\u0412\u044B\u0431\u0440\u0430\u0442\u044C EXEL \u0444\u0430\u0439\u043B"), react_1["default"].createElement("input", {
     type: "file",
     title: " ",
     name: "file_dictionary",
-    className: "form-file-input btn "
+    className: " btn btn-default form-control rounded-1"
   })), react_1["default"].createElement("input", {
     type: "text",
+    className: "form-control w-25",
     name: "name_dictionary",
     placeholder: 'name dictionary'
   }), react_1["default"].createElement("input", {
     type: "submit",
+    className: "btn btn-primary",
     value: "Загрузить словарь"
   }));
 };
@@ -2272,9 +2276,7 @@ var App = function App() {
       setModeDictionary = _d[1];
 
   (0, react_1.useEffect)(function () {
-    // Обновляем название докуммента, используя API браузера
-    console.log("mount11111111", mode_dictionary, list_words);
-    var response = fetch('/load_dictionary', {
+    fetch('/load_dictionary', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=utf-8'
@@ -2335,7 +2337,7 @@ var App = function App() {
   };
 
   return react_1["default"].createElement("div", {
-    className: "container d-flex p-2 justify-content-center flex-column"
+    className: "container d-flex mt-5 p-2 justify-content-center flex-column "
   }, react_1["default"].createElement("ul", {
     className: "nav nav-tabs"
   }, react_1["default"].createElement("li", {
@@ -2355,13 +2357,20 @@ var App = function App() {
   }, react_1["default"].createElement("a", {
     className: mode_dictionary == "add" ? "nav-link active" : "nav-link",
     href: "#"
-  }, "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C"))), mode_dictionary == "add" ? react_1["default"].createElement(AddDictionary_1["default"], null) : react_1["default"].createElement(ChoseDictionary_1["default"], {
+  }, "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C"))), react_1["default"].createElement("div", {
+    style: {
+      height: "550px"
+    },
+    className: "border border-top-0"
+  }, mode_dictionary == "add" ? react_1["default"].createElement(AddDictionary_1["default"], null) : react_1["default"].createElement("div", {
+    className: 'd-flex flex-row p-2 h-100 mt-3 '
+  }, " ", react_1["default"].createElement(ChoseDictionary_1["default"], {
     list_dictionary: list_dictionary,
     choseDictionary: choseDictionary,
     setModeDictionary: setModeDictionary
   }), react_1["default"].createElement(WordsChoser_1["default"], {
     list_words: list_words
-  }));
+  }))));
 };
 
 exports["default"] = App;
@@ -2424,33 +2433,35 @@ Object.defineProperty(exports, "__esModule", ({
 var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 
 var ChoseDictionaryComponent = function ChoseDictionaryComponent(props) {
-  console.log("mount22222", props);
-  (0, react_1.useEffect)(function () {
-    // Обновляем название докуммента, используя API браузера
-    console.log("mount", props);
-  }, []);
+  var _a = (0, react_1.useState)(-1),
+      chosen_id_dictionary = _a[0],
+      setChosenId = _a[1];
 
   var renderlistDictionary = function renderlistDictionary(list_dictionary) {
     return list_dictionary.map(function (elem) {
       return react_1["default"].createElement("li", {
         key: "dict_" + elem.id,
+        className: chosen_id_dictionary == elem.id ? "list-group-item list-group-item-action cutsor-pointer active rounded-1" : "list-group-item list-group-item-action cutsor-pointer",
         onClick: function onClick() {
+          setChosenId(elem.id);
           props.choseDictionary(elem.id);
         }
-      }, react_1["default"].createElement("input", {
-        type: "button",
-        key: "dict_INp_" + elem.id,
-        value: elem.name,
-        className: "btn btn-secondary rounded-1"
-      }));
+      }, react_1["default"].createElement("a", {
+        href: "#",
+        className: chosen_id_dictionary == elem.id ? "link-light rounded-1" : "link-dark",
+        key: "dict_INp_" + elem.id
+      }, elem.name, " "));
     });
   };
 
-  return (// justify-content-around
-    react_1["default"].createElement("div", {
-      className: " col-5 d-flex "
-    }, react_1["default"].createElement("ul", null, renderlistDictionary(props.list_dictionary)))
-  );
+  return react_1["default"].createElement("div", {
+    className: " col-3 d-flex "
+  }, react_1["default"].createElement("ul", {
+    className: 'd-flex flex-column list-group h-75 overflow-auto'
+  }, react_1["default"].createElement("a", {
+    href: "#",
+    className: "list-group-item list-group-item-action disabled"
+  }, "\u0421\u043B\u043E\u0432\u0430\u0440\u0438"), renderlistDictionary(props.list_dictionary)));
 };
 
 exports["default"] = ChoseDictionaryComponent;
@@ -2525,17 +2536,12 @@ var WordsChoser = function WordsChoser(props) {
       mode_translate_word = _c[0],
       setModeTranslateWord = _c[1];
 
-  (0, react_1.useEffect)(function () {
-    // Обновляем название докуммента, используя API браузера
-    console.log("mount", props);
-  }, [index_word]);
+  (0, react_1.useEffect)(function () {}, [index_word]);
 
   var renderInterface = function renderInterface(index_word, list_words) {
-    // return list_dictionary.map((elem: any) => {
-    //     return <li onClick={() => { props.choseDictionary(elem.id) }
-    //     }>{<input type="button" value={elem.name} className="btn btn-secondary rounded-1" />}</li>
-    // })
-    return react_1["default"].createElement("div", null, react_1["default"].createElement("div", {
+    return react_1["default"].createElement("div", {
+      className: 'w-100 h-50 d-flex flex-column justify-content-around'
+    }, react_1["default"].createElement("div", {
       className: "form-check form-switch col-1"
     }, react_1["default"].createElement("label", {
       className: "form-check-label"
@@ -2547,29 +2553,28 @@ var WordsChoser = function WordsChoser(props) {
       },
       type: "checkbox"
     }), "Rus/Eng")), react_1["default"].createElement("div", {
-      className: 'd-flex flex-column p-1 '
-    }, react_1["default"].createElement("input", {
-      type: "button",
-      disabled: true,
-      value: mode_translate_word == 'english' ? list_words[index_word].english_word : list_words[index_word].russian_word,
-      className: "btn btn-primary disabled"
-    }), react_1["default"].createElement("input", {
+      className: 'd-flex flex-column p-1 justify-content-around  '
+    }, react_1["default"].createElement("h4", {
+      className: "font-weight-bold  border-primary border-bottom text-center"
+    }, mode_translate_word == 'english' ? list_words[index_word].english_word : list_words[index_word].russian_word), react_1["default"].createElement("input", {
       type: show_translate ? "button" : "password",
-      disabled: true,
       value: mode_translate_word == 'english' ? list_words[index_word].russian_word : list_words[index_word].english_word,
-      className: "btn btn-primary disabled"
+      className: show_translate ? 'mt-3 btn btn-primary' : " mt-3 btn btn-primary disabled"
     })), react_1["default"].createElement("div", {
-      className: 'd-flex'
+      className: 'd-flex  justify-content-around'
     }, react_1["default"].createElement("button", {
+      className: 'btn btn-small btn-primary',
       onClick: function onClick() {
         setShowTranslate(false);
         setIndexWord(index_word > 0 ? index_word - 1 : props.list_words.length - 1);
       }
     }, "\u041D\u0430\u0437\u0430\u0434"), react_1["default"].createElement("button", {
+      className: 'btn btn-small btn-primary',
       onClick: function onClick() {
         setShowTranslate(!show_translate);
       }
     }, show_translate ? "Скрыть перевод" : "Показать перевод"), react_1["default"].createElement("button", {
+      className: 'btn btn-small btn-primary',
       onClick: function onClick() {
         setShowTranslate(false);
         setIndexWord(index_word < props.list_words.length - 1 ? index_word + 1 : 0);
@@ -2577,11 +2582,9 @@ var WordsChoser = function WordsChoser(props) {
     }, "\u0412\u043F\u0435\u0440\u0435\u0434")));
   };
 
-  return (// justify-content-around
-    react_1["default"].createElement("div", {
-      className: " col-5 d-flex "
-    }, props.list_words.length == 0 ? react_1["default"].createElement("h5", null, "\u0421\u043F\u0438\u0441\u043E\u043A \u0441\u043B\u043E\u0432 \u043F\u0443\u0441\u0442. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043B\u043E\u0432\u0430\u0440\u044C") : renderInterface(index_word, props.list_words))
-  );
+  return react_1["default"].createElement("div", {
+    className: " col-5 d-flex "
+  }, props.list_words.length == 0 ? react_1["default"].createElement("h5", null, "\u0421\u043F\u0438\u0441\u043E\u043A \u0441\u043B\u043E\u0432 \u043F\u0443\u0441\u0442. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043B\u043E\u0432\u0430\u0440\u044C") : renderInterface(index_word, props.list_words));
 };
 
 exports["default"] = WordsChoser;

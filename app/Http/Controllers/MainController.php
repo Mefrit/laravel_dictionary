@@ -22,22 +22,20 @@ class MainController extends Controller {
         return iconv("Windows-1251", "UTF-8", $str);
     }
     public function addDictionary(Request $request) {
-
-        $dictionary = new Dictionary();
-        $dictionary->name =  $request->input("name_dictionary") ?  $request->input("name_dictionary") : "Неизвестно";
-        $dictionary->save();
-
-        $index_english_word = 0;
-        $index_russian_word = 1;
-        $file = $request->file_dictionary;
+        $request->validate([
+            "name_dictionary"=>"required|min:2",
+            "file_dictionary"=>"required",
+        ]);
 
         if ($request->file('file_dictionary')->isValid()) {
+               $dictionary = new Dictionary();
+                $dictionary->name =  $request->input("name_dictionary") ?  $request->input("name_dictionary") : "Неизвестно";
+                $dictionary->save();
+                $index_english_word = 0;
+                $index_russian_word = 1;
+              
             $row = 1;
-
-
             $path_info = pathinfo($request->file('file_dictionary')->getClientOriginalName());
-            var_dump("!!!!!!!!!!!!!!", $path_info["extension"]);
-
             if (($handle = fopen($request->file('file_dictionary')->getRealPath(), "r")) !== FALSE && $path_info["extension"] == "csv") {
                 while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
                     $data = array_map(array($this, 'convert'), $data);
@@ -50,7 +48,7 @@ class MainController extends Controller {
                                 $index_russian_word = 0;
                             }
                         } else {
-                            var_dump($exploded_data[$index_english_word], $exploded_data[$index_russian_word]);
+                   
                             $dictionary_word = new DictionaryWords();
                             $dictionary_word->id_dictionary = $dictionary->id;
                             $dictionary_word->english_word = $exploded_data[$index_english_word];
@@ -62,11 +60,7 @@ class MainController extends Controller {
                 }
                 fclose($handle);
             }
-            // dd($request); //вывод
-
         }
-
-
         return redirect('/');;
     }
     public function loadDictionaries(Request $request) {
@@ -76,8 +70,6 @@ class MainController extends Controller {
     public function loadDictionaryWords(Request $request){
         $id_dictionary = $request->input("id_dictionary");
         $listwords = DB::table('dictionary_words')->where('id_dictionary', '=',  $id_dictionary)->get();
-        //  ->where('votes', '=', 100)
-        //         ->where('age', '>', 35)
         return json_encode(["result" => true, "list" =>  $listwords]);
     }
 }
