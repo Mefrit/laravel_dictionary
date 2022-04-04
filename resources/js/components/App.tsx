@@ -2,12 +2,8 @@ import React, { useState, useEffect } from 'react';
 import AddDictionaryComponent from "./AddDictionary"
 import ChoseDictionaryComponent from "./ChoseDictionary"
 import WordsChoser from "./WordsChoser";
-export interface IUser {
-    name: string;
-    age: number;
-}
+
 const App = () => {
-    const [users, setUsers] = useState<IUser[]>([]);
     const [list_dictionary, setListDicionary] = useState([]);
     const [list_words, setListWords] = useState([]);
     const [mode_dictionary, setModeDictionary] = useState<string>("chose");
@@ -80,9 +76,12 @@ const App = () => {
                 </li>
             </ul>
             <div style={{ height: "550px" }} className="border border-top-0">
-                {mode_dictionary == "add" ? <AddDictionaryComponent /> :
-                    <div className='d-flex flex-row p-2 h-100 mt-3 '> <ChoseDictionaryComponent list_dictionary={list_dictionary} choseDictionary={choseDictionary} setModeDictionary={setModeDictionary} />
-                        <WordsChoser list_words={list_words} /></div>}
+                {mode_dictionary == "add" ?
+                    <AddDictionaryComponent /> :
+                    <div className='d-flex flex-row p-2 h-100 mt-3 '>
+                        <ChoseDictionaryComponent list_dictionary={list_dictionary} choseDictionary={choseDictionary} setModeDictionary={setModeDictionary} />
+                        <WordsChoser list_words={list_words} />
+                    </div>}
             </div>
         </div >
     );

@@ -21,45 +21,75 @@ class MainController extends Controller {
     function convert($str) {
         return iconv("Windows-1251", "UTF-8", $str);
     }
-    public function addDictionary(Request $request) {
-        $request->validate([
+    function getValidateSettings(){
+        return [
             "name_dictionary"=>"required|min:2",
             "file_dictionary"=>"required",
-        ]);
+        ];
+    }
+
+
+    function makeNewDictionary($name_dictionary){
+        $dictionary = new Dictionary();
+        $dictionary->name = $name_dictionary?  $name_dictionary : "Неизвестно";
+        return $dictionary;
+    }
+    function createNewDictionary($name_dictionary){
+        $dictionary = $this->makeNewDictionary($name_dictionary);
+        $dictionary->save();
+        return $dictionary;
+    }
+    function makeWordItem( $dictionary_id, $english_word,$russian_word){
+        $dictionary_word = new DictionaryWords();
+        $dictionary_word->id_dictionary = $dictionary_id;
+        $dictionary_word->english_word = $english_word;
+        $dictionary_word->russian_word = $russian_word;
+        return $dictionary_word;
+    }
+    function saveWordItem($dictionary_id, $english_word, $russian_word){
+        $dictionary_word = $this->makeWordItem($dictionary_id, $english_word, $russian_word);
+        $dictionary_word->save();
+    }
+
+
+    function converData($data){
+        $new_data = clone($data);
+        return array_map(array($this, 'convert'), $new_data);
+    }
+    function getFileData($real_path, $extension){
+        $data = [];
+        $num = 0;
+        if (($handle = fopen($real_path, "r")) !== FALSE && $extension == "csv") {
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                $result = array_map(array($this, 'convert'), $data);
+                $num = count($result);
+            }
+            fclose($handle);
+        }
+        return [$result, $num];
+    }
+    function getWordsPosition($exploded_data){
+        $index_english_word = $exploded_data[0] == 'RUS' ?1: 0;
+        $index_russian_word = $exploded_data[0] == 'RUS' ?0: 1;
+        return [$index_english_word,$index_russian_word];
+    }
+    function saveWordsfromFile($dictionary, $path_info, $real_path){
+        [$data, $num] = $this->getFileData($real_path, $path_info["extension"]);
+        [$index_english_word,$index_russian_word] = $this->getWordsposition(explode(";", $data[0]));
+        for ($c = 1; $c < $num; $c++) {
+            $exploded_data = explode(";", $data[$c]);
+            $this->saveWordItem($dictionary->id,$exploded_data[$index_english_word], $exploded_data[$index_russian_word]);
+        }
+    }
+
+    public function addDictionary(Request $request) {
+        $request->validate($this->getValidateSettings());
 
         if ($request->file('file_dictionary')->isValid()) {
-               $dictionary = new Dictionary();
-                $dictionary->name =  $request->input("name_dictionary") ?  $request->input("name_dictionary") : "Неизвестно";
-                $dictionary->save();
-                $index_english_word = 0;
-                $index_russian_word = 1;
-              
-            $row = 1;
+            $dictionary = $this->saveNewDictionary($request->input("name_dictionary"));
             $path_info = pathinfo($request->file('file_dictionary')->getClientOriginalName());
-            if (($handle = fopen($request->file('file_dictionary')->getRealPath(), "r")) !== FALSE && $path_info["extension"] == "csv") {
-                while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                    $data = array_map(array($this, 'convert'), $data);
-                    $num = count($data);
-                    for ($c = 0; $c < $num; $c++) {
-                        $exploded_data = explode(";", $data[$c]);
-                        if ($exploded_data[0] == 'RUS' || $exploded_data[0] == 'ENG') {
-                            if ($exploded_data[0] == 'RUS') {
-                                $index_english_word = 1;
-                                $index_russian_word = 0;
-                            }
-                        } else {
-                   
-                            $dictionary_word = new DictionaryWords();
-                            $dictionary_word->id_dictionary = $dictionary->id;
-                            $dictionary_word->english_word = $exploded_data[$index_english_word];
-                            $dictionary_word->russian_word = $exploded_data[$index_russian_word];
-                            $dictionary_word->save();
-                        }
-                    }
-                    $row++;
-                }
-                fclose($handle);
-            }
+            $real_path = $request->file('file_dictionary')->getRealPath();
+            $this->saveWordsfromFile($dictionary, $path_info, $real_path);
         }
         return redirect('/');;
     }

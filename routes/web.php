@@ -23,7 +23,3 @@ Route::post('/dictionary/add', [MainController::class, 'addDictionary']);
 Route::post('/dictionary/load', [MainController::class, 'loadDictionaries']);
 Route::post('/dictionary/loadDictionaryWords', [MainController::class, 'loadDictionaryWords']);
 
-
-// Route::get('/test/{id}/{name}', function ($id, $name) {
-//     return "$id + $name";
-// });
