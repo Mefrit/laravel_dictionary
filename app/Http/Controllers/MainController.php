@@ -57,16 +57,20 @@ class MainController extends Controller {
         return array_map(array($this, 'convert'), $new_data);
     }
     function getFileData($real_path, $extension){
-        $data = [];
+        $result = [];
         $num = 0;
         if (($handle = fopen($real_path, "r")) !== FALSE && $extension == "csv") {
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                $result = array_map(array($this, 'convert'), $data);
+              
+                $result[]= array_map(array($this, 'convert'), $data);
                 $num = count($result);
             }
             fclose($handle);
+          
         }
         return [$result, $num];
+        
+     
     }
     function getWordsPosition($exploded_data){
         $index_english_word = $exploded_data[0] == 'RUS' ?1: 0;
@@ -75,9 +79,12 @@ class MainController extends Controller {
     }
     function saveWordsfromFile($dictionary, $path_info, $real_path){
         [$data, $num] = $this->getFileData($real_path, $path_info["extension"]);
-        [$index_english_word,$index_russian_word] = $this->getWordsposition(explode(";", $data[0]));
+     
+        [$index_english_word,$index_russian_word] = $this->getWordsposition(explode(";", $data[0][0]));
         for ($c = 1; $c < $num; $c++) {
-            $exploded_data = explode(";", $data[$c]);
+        
+            $exploded_data = explode(";", $data[$c][0]);
+        
             $this->saveWordItem($dictionary->id,$exploded_data[$index_english_word], $exploded_data[$index_russian_word]);
         }
     }
@@ -86,7 +93,7 @@ class MainController extends Controller {
         $request->validate($this->getValidateSettings());
 
         if ($request->file('file_dictionary')->isValid()) {
-            $dictionary = $this->saveNewDictionary($request->input("name_dictionary"));
+            $dictionary = $this->createNewDictionary($request->input("name_dictionary"));
             $path_info = pathinfo($request->file('file_dictionary')->getClientOriginalName());
             $real_path = $request->file('file_dictionary')->getRealPath();
             $this->saveWordsfromFile($dictionary, $path_info, $real_path);
