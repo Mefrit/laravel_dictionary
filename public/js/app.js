@@ -2094,57 +2094,19 @@ react_dom_1["default"].render(react_1["default"].createElement(App_1["default"],
 "use strict";
 
 
-var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  var desc = Object.getOwnPropertyDescriptor(m, k);
-
-  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-    desc = {
-      enumerable: true,
-      get: function get() {
-        return m[k];
-      }
-    };
-  }
-
-  Object.defineProperty(o, k2, desc);
-} : function (o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  o[k2] = m[k];
-});
-
-var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
-  Object.defineProperty(o, "default", {
-    enumerable: true,
-    value: v
-  });
-} : function (o, v) {
-  o["default"] = v;
-});
-
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-  }
-
-  __setModuleDefault(result, mod);
-
-  return result;
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
 };
 
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 
-var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+var react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 
 var AddDictionaryComponent = function AddDictionaryComponent() {
-  (0, react_1.useEffect)(function () {
-    // Обновляем название докуммента, используя API браузера
-    console.log("mount");
-  }, []);
   return react_1["default"].createElement("form", {
     encType: "multipart/form-data",
     method: 'post',
@@ -2260,20 +2222,16 @@ var WordsChoser_1 = __importDefault(__webpack_require__(/*! ./WordsChoser */ "./
 
 var App = function App() {
   var _a = (0, react_1.useState)([]),
-      users = _a[0],
-      setUsers = _a[1];
+      list_dictionary = _a[0],
+      setListDicionary = _a[1];
 
   var _b = (0, react_1.useState)([]),
-      list_dictionary = _b[0],
-      setListDicionary = _b[1];
+      list_words = _b[0],
+      setListWords = _b[1];
 
-  var _c = (0, react_1.useState)([]),
-      list_words = _c[0],
-      setListWords = _c[1];
-
-  var _d = (0, react_1.useState)("chose"),
-      mode_dictionary = _d[0],
-      setModeDictionary = _d[1];
+  var _c = (0, react_1.useState)("chose"),
+      mode_dictionary = _c[0],
+      setModeDictionary = _c[1];
 
   (0, react_1.useEffect)(function () {
     fetch('/load_dictionary', {
@@ -2364,7 +2322,7 @@ var App = function App() {
     className: "border border-top-0"
   }, mode_dictionary == "add" ? react_1["default"].createElement(AddDictionary_1["default"], null) : react_1["default"].createElement("div", {
     className: 'd-flex flex-row p-2 h-100 mt-3 '
-  }, " ", react_1["default"].createElement(ChoseDictionary_1["default"], {
+  }, react_1["default"].createElement(ChoseDictionary_1["default"], {
     list_dictionary: list_dictionary,
     choseDictionary: choseDictionary,
     setModeDictionary: setModeDictionary
@@ -2538,53 +2496,91 @@ var WordsChoser = function WordsChoser(props) {
 
   (0, react_1.useEffect)(function () {}, [index_word]);
 
-  var renderInterface = function renderInterface(index_word, list_words) {
+  var renderChoserLanguage = function renderChoserLanguage(props) {
     return react_1["default"].createElement("div", {
-      className: 'w-100 h-50 d-flex flex-column justify-content-around'
-    }, react_1["default"].createElement("div", {
       className: "form-check form-switch col-1"
     }, react_1["default"].createElement("label", {
       className: "form-check-label"
     }, react_1["default"].createElement("input", {
       className: "form-check-input",
       onChange: function onChange(ev) {
-        setShowTranslate(false);
-        setModeTranslateWord(ev.target.checked ? "english" : "russian");
+        props.onChange(ev);
       },
       type: "checkbox"
-    }), "Rus/Eng")), react_1["default"].createElement("div", {
+    }), "Rus/Eng"));
+  };
+
+  var renderTextView = function renderTextView(list_words, mode_translate_word, index_word) {
+    return react_1["default"].createElement("div", {
       className: 'd-flex flex-column p-1 justify-content-around  '
     }, react_1["default"].createElement("h4", {
       className: "font-weight-bold  border-primary border-bottom text-center"
     }, mode_translate_word == 'english' ? list_words[index_word].english_word : list_words[index_word].russian_word), react_1["default"].createElement("input", {
       type: show_translate ? "button" : "password",
-      value: mode_translate_word == 'english' ? list_words[index_word].russian_word : list_words[index_word].english_word,
+      value: mode_translate_word == 'english' ? list_words[props.index_word].russian_word : list_words[index_word].english_word,
       className: show_translate ? 'mt-3 btn btn-primary' : " mt-3 btn btn-primary disabled"
-    })), react_1["default"].createElement("div", {
+    }));
+  };
+
+  var renderInterfaceButtons = function renderInterfaceButtons(props_actions, show_translate, index_word) {
+    return react_1["default"].createElement("div", {
       className: 'd-flex  justify-content-around'
     }, react_1["default"].createElement("button", {
       className: 'btn btn-small btn-primary',
       onClick: function onClick() {
-        setShowTranslate(false);
-        setIndexWord(index_word > 0 ? index_word - 1 : props.list_words.length - 1);
+        props_actions.goBack();
       }
     }, "\u041D\u0430\u0437\u0430\u0434"), react_1["default"].createElement("button", {
       className: 'btn btn-small btn-primary',
       onClick: function onClick() {
-        setShowTranslate(!show_translate);
+        props_actions.showTranslate();
       }
     }, show_translate ? "Скрыть перевод" : "Показать перевод"), react_1["default"].createElement("button", {
       className: 'btn btn-small btn-primary',
       onClick: function onClick() {
-        setShowTranslate(false);
-        setIndexWord(index_word < props.list_words.length - 1 ? index_word + 1 : 0);
+        props_actions.goForward();
       }
-    }, "\u0412\u043F\u0435\u0440\u0435\u0434")));
+    }, "\u0412\u043F\u0435\u0440\u0435\u0434"));
+  };
+
+  var _goBack = function goBack(index_word, list_words) {
+    setShowTranslate(false);
+    setIndexWord(index_word > 0 ? index_word - 1 : list_words.length - 1);
+  };
+
+  var changeLanguage = function changeLanguage(checked) {
+    setShowTranslate(false);
+    setModeTranslateWord(checked ? "english" : "russian");
+  };
+
+  var _goForward = function goForward(index_word, list_words) {
+    setShowTranslate(false);
+    setIndexWord(index_word < list_words.length - 1 ? index_word + 1 : 0);
+  };
+
+  var renderInterface = function renderInterface(index_word, list_words, show_translate) {
+    return react_1["default"].createElement("div", {
+      className: 'w-100 h-50 d-flex flex-column justify-content-around'
+    }, renderChoserLanguage({
+      onChange: function onChange(ev) {
+        changeLanguage(ev.target.checked);
+      }
+    }), renderTextView(list_words, mode_translate_word, index_word), renderInterfaceButtons({
+      goBack: function goBack() {
+        _goBack(index_word, list_words);
+      },
+      showTranslate: function showTranslate() {
+        setShowTranslate(!show_translate);
+      },
+      goForward: function goForward() {
+        _goForward(index_word, list_words);
+      }
+    }, show_translate, index_word));
   };
 
   return react_1["default"].createElement("div", {
     className: " col-5 d-flex "
-  }, props.list_words.length == 0 ? react_1["default"].createElement("h5", null, "\u0421\u043F\u0438\u0441\u043E\u043A \u0441\u043B\u043E\u0432 \u043F\u0443\u0441\u0442. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043B\u043E\u0432\u0430\u0440\u044C") : renderInterface(index_word, props.list_words));
+  }, props.list_words.length == 0 ? react_1["default"].createElement("h5", null, "\u0421\u043F\u0438\u0441\u043E\u043A \u0441\u043B\u043E\u0432 \u043F\u0443\u0441\u0442. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043B\u043E\u0432\u0430\u0440\u044C") : renderInterface(index_word, props.list_words, show_translate));
 };
 
 exports["default"] = WordsChoser;
