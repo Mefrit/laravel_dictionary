@@ -2565,7 +2565,7 @@ var WordsChoser = function WordsChoser(props) {
       onChange: function onChange(ev) {
         changeLanguage(ev.target.checked);
       }
-    }), ";", renderTextView(list_words, mode_translate_word, index_word), renderInterfaceButtons({
+    }), renderTextView(list_words, mode_translate_word, index_word), renderInterfaceButtons({
       goBack: function goBack() {
         _goBack(index_word, list_words);
       },

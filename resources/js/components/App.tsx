@@ -65,16 +65,19 @@ const App = () => {
                 }
             });
     };
+    const renderMenu = (mode_dictionary: any) => {
+        return <ul className="nav nav-tabs">
+            <li className="nav-item" onClick={() => { setModeDictionary("chose") }}>
+                <a className={mode_dictionary == "chose" ? "nav-link active" : "nav-link"} aria-current="page" href="#">Выбрать словарь</a>
+            </li>
+            <li className="nav-item" onClick={() => { setModeDictionary("add") }}>
+                <a className={mode_dictionary == "add" ? "nav-link active" : "nav-link"} href="#">Добавить словарь</a>
+            </li>
+        </ul>
+    }
     return (
         <div className="container d-flex mt-5 p-2 justify-content-center flex-column ">
-            <ul className="nav nav-tabs">
-                <li className="nav-item" onClick={() => { setModeDictionary("chose") }}>
-                    <a className={mode_dictionary == "chose" ? "nav-link active" : "nav-link"} aria-current="page" href="#">Выбрать словарь</a>
-                </li>
-                <li className="nav-item" onClick={() => { setModeDictionary("add") }}>
-                    <a className={mode_dictionary == "add" ? "nav-link active" : "nav-link"} href="#">Добавить словарь</a>
-                </li>
-            </ul>
+            {renderMenu(mode_dictionary)}
             <div style={{ height: "550px" }} className="border border-top-0">
                 {mode_dictionary == "add" ?
                     <AddDictionaryComponent /> :

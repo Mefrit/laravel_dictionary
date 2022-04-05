@@ -19,12 +19,11 @@ const WordsChoser = (props: any) => {
                 className={show_translate ? 'mt-3 btn btn-primary' : " mt-3 btn btn-primary disabled"} />
         </div>
     }
-    const renderInterfaceButtons = (props_actions: any, show_translate: boolean, index_word: number) => {
-
+    const renderInterfaceButtons = (show_translate: boolean, index_word: number, list_words: any) => {
         return <div className='d-flex  justify-content-around'>
-            <button className='btn btn-small btn-primary' onClick={() => { props_actions.goBack() }}>Назад</button>
-            <button className='btn btn-small btn-primary' onClick={() => { props_actions.showTranslate() }}>{show_translate ? "Скрыть перевод" : "Показать перевод"}</button>
-            <button className='btn btn-small btn-primary' onClick={() => { props_actions.goForward() }}>Вперед</button>
+            <button className='btn btn-small btn-primary' onClick={() => { goBack(index_word, list_words) }}>Назад</button>
+            <button className='btn btn-small btn-primary' onClick={() => { setShowTranslate(!show_translate) }}>{show_translate ? "Скрыть перевод" : "Показать перевод"}</button>
+            <button className='btn btn-small btn-primary' onClick={() => { goForward(index_word, list_words) }}>Вперед</button>
         </div>
     }
     const goBack = (index_word: number, list_words: any) => {
@@ -41,23 +40,13 @@ const WordsChoser = (props: any) => {
     }
     const renderInterface = (index_word: number, list_words: any, show_translate: boolean) => {
         return <div className='w-100 h-50 d-flex flex-column justify-content-around'>
-            {renderChoserLanguage({ onChange: (ev: any) => { changeLanguage(ev.target.checked); } })};
+            {renderChoserLanguage({ onChange: (ev: any) => { changeLanguage(ev.target.checked); } })}
             {renderTextView(
                 list_words,
                 mode_translate_word,
                 index_word
             )}
-            {renderInterfaceButtons({
-                goBack: () => {
-                    goBack(index_word, list_words);
-                },
-                showTranslate: () => {
-                    setShowTranslate(!show_translate)
-                },
-                goForward: () => {
-                    goForward(index_word, list_words);
-                }
-            }, show_translate, index_word)}
+            {renderInterfaceButtons(show_translate, index_word, list_words)}
         </div >
     }
     return (
