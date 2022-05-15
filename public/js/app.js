@@ -2220,6 +2220,8 @@ var ChoseDictionary_1 = __importDefault(__webpack_require__(/*! ./ChoseDictionar
 
 var WordsChoser_1 = __importDefault(__webpack_require__(/*! ./WordsChoser */ "./resources/js/components/WordsChoser.tsx"));
 
+var EditDictionary_1 = __webpack_require__(/*! ./EditDictionary */ "./resources/js/components/EditDictionary.tsx");
+
 var App = function App() {
   var _a = (0, react_1.useState)([]),
       list_dictionary = _a[0],
@@ -2233,19 +2235,11 @@ var App = function App() {
       mode_dictionary = _c[0],
       setModeDictionary = _c[1];
 
-  (0, react_1.useEffect)(function () {
-    fetch('/load_dictionary', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      body: JSON.stringify({})
-    }).then(function (answer) {
-      if (answer.result) {
-        setListDicionary(answer.list);
-      }
-    });
-  }, [mode_dictionary, list_words]);
+  var _d = (0, react_1.useState)(-1),
+      id_dictionary = _d[0],
+      setIdChosenDictionary = _d[1];
+
+  (0, react_1.useEffect)(function () {}, [mode_dictionary, list_words]);
 
   function postJSON(url, args) {
     try {
@@ -2268,7 +2262,7 @@ var App = function App() {
         return data;
       });
     } catch (err) {
-      alert("Error11 " + err.toString());
+      alert("Error " + err.toString());
       return null;
     }
   }
@@ -2282,53 +2276,120 @@ var App = function App() {
     });
   }, []);
 
+  var getDictionaryNameById = function getDictionaryNameById(list_dictionary, id_dictionary) {
+    var name = 'Не найденно';
+    list_dictionary.forEach(function (elem) {
+      if (elem.id_dictionary == id_dictionary) {
+        name = elem.name;
+      }
+    });
+    return name;
+  };
+
   var choseDictionary = function choseDictionary(id_dictionary) {
     postJSON('/dictionary/loadDictionaryWords', {
       id_dictionary: id_dictionary
     }).then(function (answer) {
-      console.log("/dictionary/loadDictionaryWords", answer);
-
       if (answer.result) {
+        setIdChosenDictionary(id_dictionary);
         setListWords(answer.list);
+      }
+    });
+  };
+
+  var renderMenu = function renderMenu(mode_dictionary) {
+    return react_1["default"].createElement("ul", {
+      className: "nav nav-tabs"
+    }, react_1["default"].createElement("li", {
+      className: "nav-item",
+      onClick: function onClick() {
+        setModeDictionary("chose");
+      }
+    }, react_1["default"].createElement("a", {
+      className: mode_dictionary == "chose" ? "nav-link active" : "nav-link",
+      "aria-current": "page",
+      href: "#"
+    }, "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C")), react_1["default"].createElement("li", {
+      className: "nav-item",
+      onClick: function onClick() {
+        setModeDictionary("add");
+      }
+    }, react_1["default"].createElement("a", {
+      className: mode_dictionary == "add" ? "nav-link active" : "nav-link",
+      href: "#"
+    }, "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C")), react_1["default"].createElement("li", {
+      className: "nav-item",
+      onClick: function onClick() {
+        setModeDictionary("edit");
+      }
+    }, react_1["default"].createElement("a", {
+      className: mode_dictionary == "add" ? "nav-link active" : "nav-link",
+      href: "#"
+    }, "\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C")));
+  };
+
+  var createWordObject = function createWordObject(russian_word, english_word, id_dictionary) {
+    return {
+      english_word: english_word,
+      russian_word: russian_word,
+      id_dictionary: id_dictionary
+    };
+  };
+
+  var addWord2ListEvent = function addWord2ListEvent(list_dictionary, word_obj) {
+    var list_dictionary_copy = list_dictionary.slice();
+    list_dictionary_copy.push(word_obj);
+    return list_dictionary_copy;
+  };
+
+  var addId2Wordobj = function addId2Wordobj(word_obj, id_word) {
+    return __assign(__assign({}, word_obj), {
+      id: id_word
+    });
+  };
+
+  var addWord2List = function addWord2List(russian_word, english_word) {
+    setModeDictionary("chose");
+    var word_obj = createWordObject(russian_word, english_word, id_dictionary);
+    postJSON('/dictionary/addWord', {
+      word_obj: word_obj
+    }).then(function (answer) {
+      if (answer.result) {
+        var word_obj_with_id = addId2Wordobj(word_obj, answer.id_word);
+        var new_word_list = addWord2ListEvent(list_words, word_obj_with_id);
+        setListWords(new_word_list);
       }
     });
   };
 
   return react_1["default"].createElement("div", {
     className: "container d-flex mt-5 p-2 justify-content-center flex-column "
-  }, react_1["default"].createElement("ul", {
-    className: "nav nav-tabs"
-  }, react_1["default"].createElement("li", {
-    className: "nav-item",
-    onClick: function onClick() {
-      setModeDictionary("chose");
-    }
-  }, react_1["default"].createElement("a", {
-    className: mode_dictionary == "chose" ? "nav-link active" : "nav-link",
-    "aria-current": "page",
-    href: "#"
-  }, "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C")), react_1["default"].createElement("li", {
-    className: "nav-item",
-    onClick: function onClick() {
-      setModeDictionary("add");
-    }
-  }, react_1["default"].createElement("a", {
-    className: mode_dictionary == "add" ? "nav-link active" : "nav-link",
-    href: "#"
-  }, "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0441\u043B\u043E\u0432\u0430\u0440\u044C"))), react_1["default"].createElement("div", {
+  }, renderMenu(mode_dictionary), react_1["default"].createElement("div", {
     style: {
       height: "550px"
     },
     className: "border border-top-0"
-  }, mode_dictionary == "add" ? react_1["default"].createElement(AddDictionary_1["default"], null) : react_1["default"].createElement("div", {
+  }, mode_dictionary == "add" ? react_1["default"].createElement(AddDictionary_1["default"], null) : "", mode_dictionary == "chose" ? react_1["default"].createElement("div", {
     className: 'd-flex flex-row p-2 h-100 mt-3 '
   }, react_1["default"].createElement(ChoseDictionary_1["default"], {
+    chosen_id_dictionary: id_dictionary,
     list_dictionary: list_dictionary,
     choseDictionary: choseDictionary,
     setModeDictionary: setModeDictionary
   }), react_1["default"].createElement(WordsChoser_1["default"], {
     list_words: list_words
-  }))));
+  })) : "", mode_dictionary == "edit" ? react_1["default"].createElement("div", {
+    className: 'd-flex flex-row p-2 h-100 mt-3 '
+  }, react_1["default"].createElement(ChoseDictionary_1["default"], {
+    chosen_id_dictionary: id_dictionary,
+    list_dictionary: list_dictionary,
+    choseDictionary: choseDictionary,
+    setModeDictionary: setModeDictionary
+  }), react_1["default"].createElement(EditDictionary_1.EditDictionary, {
+    id_dictionary: id_dictionary,
+    addWord2List: addWord2List,
+    name_dictionary: getDictionaryNameById(list_dictionary, id_dictionary)
+  })) : ""));
 };
 
 exports["default"] = App;
@@ -2391,7 +2452,7 @@ Object.defineProperty(exports, "__esModule", ({
 var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 
 var ChoseDictionaryComponent = function ChoseDictionaryComponent(props) {
-  var _a = (0, react_1.useState)(-1),
+  var _a = (0, react_1.useState)(props.chosen_id_dictionary),
       chosen_id_dictionary = _a[0],
       setChosenId = _a[1];
 
@@ -2423,6 +2484,126 @@ var ChoseDictionaryComponent = function ChoseDictionaryComponent(props) {
 };
 
 exports["default"] = ChoseDictionaryComponent;
+
+/***/ }),
+
+/***/ "./resources/js/components/EditDictionary.tsx":
+/*!****************************************************!*\
+  !*** ./resources/js/components/EditDictionary.tsx ***!
+  \****************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  var desc = Object.getOwnPropertyDescriptor(m, k);
+
+  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+    desc = {
+      enumerable: true,
+      get: function get() {
+        return m[k];
+      }
+    };
+  }
+
+  Object.defineProperty(o, k2, desc);
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) {
+    if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+  }
+
+  __setModuleDefault(result, mod);
+
+  return result;
+};
+
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.EditDictionary = void 0;
+
+var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+var EditDictionary = function EditDictionary(props) {
+  var name_dictionary = props.name;
+  var id_dictionary = props.id_dictionary;
+
+  var _a = (0, react_1.useState)("chose"),
+      russian_word = _a[0],
+      setRussianWord = _a[1];
+
+  var _b = (0, react_1.useState)("chose"),
+      english_word = _b[0],
+      setEnglishWord = _b[1];
+
+  (0, react_1.useEffect)(function () {// fetch('/dictionary/edit', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json;charset=utf-8'
+    //     },
+    //     body: JSON.stringify({})
+    // }).then((answer: any) => {
+    //     if (answer.result) {
+    //         setListDicionary(answer.list)
+    //     }
+    // });
+  });
+
+  var setRussianWordEvent = function setRussianWordEvent(ev) {
+    var value = ev.target.value;
+    setRussianWord(value);
+  };
+
+  if (id_dictionary == -1) {
+    return react_1["default"].createElement("h4", null, "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043B\u043E\u0432\u0430\u0440\u044C");
+  }
+
+  return react_1["default"].createElement("form", {
+    className: 'd-flex flex-column justify-content-around h-50'
+  }, react_1["default"].createElement("input", {
+    type: "text",
+    className: 'btn btn-small ',
+    onChange: setRussianWordEvent,
+    name: "russian_word",
+    placeholder: "\u0410\u043D\u0433\u043B\u0438\u0439\u0441\u043A\u0430\u044F \u0432\u0435\u0440\u0441\u0438\u044F"
+  }), react_1["default"].createElement("input", {
+    type: "text",
+    className: 'btn btn-small ',
+    onChange: function onChange(ev) {
+      return setEnglishWord(ev.target.value);
+    },
+    name: "english_word",
+    placeholder: "\u0420\u0443\u0441\u0441\u043A\u0430\u044F \u0432\u0435\u0440\u0441\u0438\u044F"
+  }), react_1["default"].createElement("input", {
+    type: "button",
+    className: 'btn btn-small btn-primary',
+    onClick: function onClick() {
+      props.addWord2List(russian_word, english_word);
+    },
+    value: "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0441\u043B\u043E\u0432\u043E"
+  }));
+};
+
+exports.EditDictionary = EditDictionary;
 
 /***/ }),
 
@@ -2481,6 +2662,21 @@ Object.defineProperty(exports, "__esModule", ({
 
 var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 
+var RenderChoserLanguage = function RenderChoserLanguage(props) {
+  return react_1["default"].createElement("div", {
+    className: "form-check form-switch col-1"
+  }, react_1["default"].createElement("label", {
+    className: "form-check-label"
+  }, react_1["default"].createElement("input", {
+    className: "form-check-input",
+    defaultChecked: false,
+    onChange: function onChange(ev) {
+      props.onChange(ev);
+    },
+    type: "checkbox"
+  }), "Rus/Eng"));
+};
+
 var WordsChoser = function WordsChoser(props) {
   var _a = (0, react_1.useState)(false),
       show_translate = _a[0],
@@ -2494,21 +2690,27 @@ var WordsChoser = function WordsChoser(props) {
       mode_translate_word = _c[0],
       setModeTranslateWord = _c[1];
 
-  (0, react_1.useEffect)(function () {}, [index_word]);
-
-  var renderChoserLanguage = function renderChoserLanguage(props) {
-    return react_1["default"].createElement("div", {
-      className: "form-check form-switch col-1"
-    }, react_1["default"].createElement("label", {
-      className: "form-check-label"
-    }, react_1["default"].createElement("input", {
-      className: "form-check-input",
-      onChange: function onChange(ev) {
-        props.onChange(ev);
-      },
-      type: "checkbox"
-    }), "Rus/Eng"));
-  };
+  (0, react_1.useEffect)(function () {}, [index_word]); // const deepCopy = (thing: any): any => {
+  //     if (Array.isArray(thing)) {
+  //         var copy = [];
+  //         for (var i = 0; i < thing.length; i++)
+  //             copy.push(deepCopy(thing[i]));
+  //         return copy;
+  //     } else if (thing === null) {
+  //         return null;
+  //     } else if (typeof thing === "object") {
+  //         var copy: any[] = {};
+  //         var keys = Object.keys(thing);
+  //         for (var i = 0; i < keys.length; i++) {
+  //             var key: any = keys[i];
+  //             copy[key] = deepCopy(thing[key]);
+  //         }
+  //         return copy;
+  //     } else {
+  //         // Числа, строки, логические значения неизменяемые
+  //         return thing;
+  //     }
+  // }
 
   var renderTextView = function renderTextView(list_words, mode_translate_word, index_word) {
     return react_1["default"].createElement("div", {
@@ -2517,43 +2719,43 @@ var WordsChoser = function WordsChoser(props) {
       className: "font-weight-bold  border-primary border-bottom text-center"
     }, mode_translate_word == 'english' ? list_words[index_word].english_word : list_words[index_word].russian_word), react_1["default"].createElement("input", {
       type: show_translate ? "button" : "password",
-      value: mode_translate_word == 'english' ? list_words[props.index_word].russian_word : list_words[index_word].english_word,
+      defaultValue: mode_translate_word == 'english' ? list_words[index_word].russian_word : list_words[index_word].english_word,
       className: show_translate ? 'mt-3 btn btn-primary' : " mt-3 btn btn-primary disabled"
     }));
   };
 
-  var renderInterfaceButtons = function renderInterfaceButtons(props_actions, show_translate, index_word) {
+  var renderInterfaceButtons = function renderInterfaceButtons(show_translate, index_word, list_words) {
     return react_1["default"].createElement("div", {
       className: 'd-flex  justify-content-around'
     }, react_1["default"].createElement("button", {
       className: 'btn btn-small btn-primary',
       onClick: function onClick() {
-        props_actions.goBack();
+        goBack(index_word, list_words);
       }
     }, "\u041D\u0430\u0437\u0430\u0434"), react_1["default"].createElement("button", {
       className: 'btn btn-small btn-primary',
       onClick: function onClick() {
-        props_actions.showTranslate();
+        setShowTranslate(!show_translate);
       }
     }, show_translate ? "Скрыть перевод" : "Показать перевод"), react_1["default"].createElement("button", {
       className: 'btn btn-small btn-primary',
       onClick: function onClick() {
-        props_actions.goForward();
+        goForward(index_word, list_words);
       }
     }, "\u0412\u043F\u0435\u0440\u0435\u0434"));
   };
 
-  var _goBack = function goBack(index_word, list_words) {
+  var goBack = function goBack(index_word, list_words) {
     setShowTranslate(false);
     setIndexWord(index_word > 0 ? index_word - 1 : list_words.length - 1);
   };
 
-  var changeLanguage = function changeLanguage(checked) {
+  var changeLanguage = function changeLanguage(ev) {
     setShowTranslate(false);
-    setModeTranslateWord(checked ? "english" : "russian");
+    setModeTranslateWord(ev.target.checked ? "english" : "russian");
   };
 
-  var _goForward = function goForward(index_word, list_words) {
+  var goForward = function goForward(index_word, list_words) {
     setShowTranslate(false);
     setIndexWord(index_word < list_words.length - 1 ? index_word + 1 : 0);
   };
@@ -2561,21 +2763,9 @@ var WordsChoser = function WordsChoser(props) {
   var renderInterface = function renderInterface(index_word, list_words, show_translate) {
     return react_1["default"].createElement("div", {
       className: 'w-100 h-50 d-flex flex-column justify-content-around'
-    }, renderChoserLanguage({
-      onChange: function onChange(ev) {
-        changeLanguage(ev.target.checked);
-      }
-    }), renderTextView(list_words, mode_translate_word, index_word), renderInterfaceButtons({
-      goBack: function goBack() {
-        _goBack(index_word, list_words);
-      },
-      showTranslate: function showTranslate() {
-        setShowTranslate(!show_translate);
-      },
-      goForward: function goForward() {
-        _goForward(index_word, list_words);
-      }
-    }, show_translate, index_word));
+    }, react_1["default"].createElement(RenderChoserLanguage, {
+      onChange: changeLanguage
+    }), renderTextView(list_words, mode_translate_word, index_word), renderInterfaceButtons(show_translate, index_word, list_words));
   };
 
   return react_1["default"].createElement("div", {

@@ -15,6 +15,7 @@ class VerifyCsrfToken extends Middleware
         //
         '/dictionary/add',
         '/dictionary/load',
-        '/dictionary/loadDictionaryWords'
+        '/dictionary/loadDictionaryWords',
+        '/dictionary/addWord',
     ];
 }

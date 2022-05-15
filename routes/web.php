@@ -22,4 +22,4 @@ Route::get('/rewiew', [MainController::class, 'rewiew']);
 Route::post('/dictionary/add', [MainController::class, 'addDictionary']);
 Route::post('/dictionary/load', [MainController::class, 'loadDictionaries']);
 Route::post('/dictionary/loadDictionaryWords', [MainController::class, 'loadDictionaryWords']);
-
+Route::post('/dictionary/addWord', [MainController::class, 'addWord']);
