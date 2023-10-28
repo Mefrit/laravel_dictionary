@@ -7,5 +7,5 @@ define(["require", "exports", "react", "react-dom", "./components/App"], functio
     react_1 = __importDefault(react_1);
     react_dom_1 = __importDefault(react_dom_1);
     App_1 = __importDefault(App_1);
-    react_dom_1.default.render(react_1.default.createElement(App_1.default, { mode: 'user' }), document.getElementById("root"));
+    react_dom_1.default.render(react_1.default.createElement(App_1.default, { mode: 'admin' }), document.getElementById("root"));
 });
