@@ -135,7 +135,7 @@ define(["require", "exports", "react"], function (require, exports, react_1) {
         return (react_1.default.createElement("div", { className: "container d-flex mt-5 p-3 w-100 justify-content-center flex-column " },
             react_1.default.createElement("div", { className: 'w-100 mt-1  container', style: { 'max-width': '600px' } },
                 react_1.default.createElement("div", { class: "row w-100 d=flex" },
-                    react_1.default.createElement("div", { className: "form-check form-switch col-2 pt-2 pl-6 mt-1 ", style: { 'min-width': '70px' } },
+                    react_1.default.createElement("div", { className: "form-check form-switch col-2 pt-2 pl-6 mt-1 ", style: { 'min-width': '90px' } },
                         react_1.default.createElement("label", { className: "form-check-label" },
                             react_1.default.createElement("input", { className: "form-check-input col-form-label-lg p-1", onChange: function (ev) {
                                     setModeTranslateWord(ev.target.checked ? "chinese" : "russian");
