@@ -140,7 +140,7 @@ define(["require", "exports", "react"], function (require, exports, react_1) {
                             react_1.default.createElement("input", { className: "form-check-input col-form-label-lg p-1", onChange: function (ev) {
                                     setModeTranslateWord(ev.target.checked ? "chinese" : "russian");
                                 }, type: "checkbox" }),
-                            "Ru/Ch")),
+                            "R/Ch")),
                     react_1.default.createElement("input", { type: "text", className: "form-control m-2 col ", style: { 'max-width': '400px' }, placeholder: mode_dictionary == 'russian' ? 'Введите слово' : '输入单词', value: search_value, onChange: function (ev) { setSearchValue(ev.target.value); } }),
                     props.mode == 'admin' ?
                         react_1.default.createElement("button", { className: 'btn btn-small btn-primary  m-1 col', onClick: function () { addWordToDictionary(); } }, "\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C \u0441\u043B\u043E\u0432\u043E \u0432 \u0441\u043B\u043E\u0432\u0430\u0440\u044C")
