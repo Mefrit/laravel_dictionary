@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, status
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.database import engine
@@ -6,8 +6,7 @@ from app.models.main_class_models import NewWord, SearchWord
 from sqlalchemy.orm import Session
 from app.models.base_table_models import WordsTable
 from app.database import Base, SessionLocal 
-from pydantic import BaseModel
-import random
+
 from  sqlalchemy.sql.expression import func, select
 
 app = FastAPI()
