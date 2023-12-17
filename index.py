@@ -1,14 +1,14 @@
-from fastapi import FastAPI, Depends, status
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.database import engine
-from app.models.main_class_models import WordList, NewWord, SearchWord
+from app.models.main_class_models import NewWord, SearchWord, DeleteRaw, EditWord
 from sqlalchemy.orm import Session
 from app.models.base_table_models import WordsTable
 from app.database import Base, SessionLocal 
-from pydantic import BaseModel
-import random
+
 from  sqlalchemy.sql.expression import func, select
+from sqlalchemy.orm.attributes import set_committed_value
 
 app = FastAPI()
 
@@ -47,7 +47,10 @@ def load_dictionary():
 
 @app.get('/load')
 async def load():
-    return {"list": ["Hello World"]}
+    return {"list": ["Hello it is work!!!"]}
+
+
+
 
 @app.post('/addWordToDictionary', status_code=status.HTTP_201_CREATED)
 def addWordToDictionary(word_raw: NewWord):
@@ -68,26 +71,29 @@ def addWordToDictionary(word_raw: NewWord):
 
     return {'result': True, 'word_id': str(id)}
 
-@app.post('/addWordToDictionary', status_code=status.HTTP_201_CREATED)
-def addWordToDictionary(word_raw: NewWord):
+@app.post('/editWord', status_code=status.HTTP_201_CREATED)
+def editWord(word_raw: EditWord):
     """
     добавит новое словов в словарь
     """
     session = Session(bind=engine, expire_on_commit=False)
-
-    word_obj = WordsTable(
-        rus_value=str(word_raw.rus_value.lower()),
-        chinese_value=str(word_raw.chinese_value.lower())
+    
+    rows = session.query(WordsTable).filter(WordsTable.id == word_raw.word_id).update(
+        {
+            'rus_value': word_raw.rus_value,
+            'chinese_value': word_raw.chinese_value
+        }
     )
-
-    session.add(word_obj)
+   
+    # session.add(word)
+    # set_committed_value(word, 'rus_value', word_raw.rus_value)
+    # set_committed_value(word, 'chinese_value', word_raw.chinese_value)
 
     session.commit()
+    # id = word.id
+    # session.close()
 
-    id = word_obj.id
-
-    session.close()
-    return {'result': True, 'word_id': str(id)}
+    return {'result': True, 'rows': str(rows)}
 
 @app.post("/FindTranslate")
 async def find_translate(word_raw: SearchWord):
@@ -101,6 +107,17 @@ async def find_translate(word_raw: SearchWord):
     ).all()
 
     return {'result': True, 'list': results}
+
+@app.post("/Delete")
+def find_translate(word_raw: DeleteRaw):
+
+    session = Session(bind=engine, expire_on_commit=False)
+
+    word = session.query(WordsTable).filter(WordsTable.id == word_raw.word_id).one()
+    # если пользователь найден, удаляем его
+    session.delete(word)  # удаляем объект
+    session.commit()
+    return {'result': True, 'word': word}
 
 @app.get("/GetRandomWords")
 def find_translate():

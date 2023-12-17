@@ -12,6 +12,15 @@ class NewWord(BaseModel):
     rus_value: str
     chinese_value: str 
 
+class EditWord(BaseModel):
+    rus_value: str
+    chinese_value: str 
+    word_id:int
+
+
 class SearchWord(BaseModel):
     search_value: str
     mode: str 
+
+class DeleteRaw(BaseModel):
+    word_id: str

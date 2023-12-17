@@ -7,7 +7,9 @@ const App = (props) => {
     const [search_value, setSearchValue] = useState("");
     const [search_insert_value, setInsertValue] = useState("");
     const [list_words, setListWords] = useState([]);
+    const [edit_word_id, setEditId] = useState(-1);
     const [mode_dictionary, setModeTranslateWord] = useState<string>("russian");
+    const [mode_search, setModeWordSearch] = useState<string>("translate");
     const [list_title, setListTitle] = useState("Случайный набор слов");
 
     function postJSON(url: any, args: any): any {
@@ -73,10 +75,13 @@ const App = (props) => {
 
     const addWordToDictionary = () => {
         // Обновляем название докуммента, используя API браузера
+        if (search_value.trim() == '' || search_insert_value.trim() =='') {
+            alert('Введите значение перевода')
+        }
         postJSON('/addWordToDictionary', 
         {
-            rus_value: search_value,
-            chinese_value: search_insert_value 
+            rus_value: mode_dictionary == 'russian'? search_value: search_insert_value,
+            chinese_value: mode_dictionary == 'russian'? search_insert_value: search_value
         })
             .then((answer: any) => {
                 if (answer.result) {
@@ -85,7 +90,26 @@ const App = (props) => {
             });
     };
 
+    const changeWord = (edit_word_id) => {
+        // Обновляем название докуммента, используя API браузера
+        
+        postJSON('/editWord', 
+        {
+            rus_value: mode_dictionary == 'russian'? search_value: search_insert_value,
+            chinese_value: mode_dictionary == 'russian'? search_insert_value: search_value,
+            word_id: edit_word_id
+        })
+            .then((answer: any) => {
+                if (answer.result) {
+                    alert('Слово изменено')
+                }
+            });
+    };
+
     const setFindTranslate = () => {
+        if (search_value == '') {
+            alert('Введите значение перевода')
+        }
         postJSON('/FindTranslate', {search_value: search_value, mode: mode_dictionary})
             .then((answer: any) => {
                 
@@ -95,10 +119,60 @@ const App = (props) => {
                 }
             });
     };
+    const setToEditWord = (id)=>{
+        let new_word_list = list_words.filter(elem=> elem.id == id)
+        console.log(new_word_list, new_word_list[0].chinese_value)
+        if (new_word_list.length > 0) {
+            setSearchValue(
+                mode_dictionary == 'russian'? new_word_list[0].rus_value: new_word_list[0].chinese_value
+            )
+            setInsertValue(
+                mode_dictionary == 'russian'?  new_word_list[0].chinese_value: new_word_list[0].rus_value
+            )
+            setModeWordSearch('edit')
+            setEditId(id)
+        }
+    }
+    const deleteWord = (id)=>{
+        postJSON('/Delete', {word_id: id})
+        .then((answer: any) => {
+            let new_word_list = list_words.filter(elem=> elem.id != answer.word.id)
+            setListWords(new_word_list);
+        });
+    }
     function renderWordList(){
         let list_words_elements = list_words.map(elem=>{
-            return <li className='d-flex d-flex justify-content-between list-group-item '>
-                <span>{elem.rus_value}</span>  <span>{elem.chinese_value}</span> 
+            return <li key={elem.id} className='d-flex d-flex justify-content-between list-group-item '>
+                <span>{elem.rus_value}</span>  
+                <div>
+                    <span>{elem.chinese_value}</span> 
+          
+                        <button 
+                            class="btn btn-outline-secondary btn-sm m-2 mb-0 mt-0"
+                            value={elem.id} 
+                            onClick={
+                                (ev)=>{setToEditWord(ev.currentTarget.value)}
+                            }
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" maxWidth="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                <path  d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                            </svg>
+                        </button>
+              
+                        <button 
+                            class="btn btn-outline-secondary btn-sm  mb-0 mt-0"
+                            value={elem.id} 
+                            onClick={
+                                (ev)=>{deleteWord(ev.currentTarget.value)}
+                            }
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" maxWidth="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </button>
+                   
+                </div>
             </li>
         })
         return <ul className="list-group list-group-flush" >
@@ -125,11 +199,12 @@ const App = (props) => {
                     />  
                   
                     {props.mode == 'admin'?  
+                           
                             <button 
                                 className='btn btn-small btn-primary  m-1 col'
-                                onClick={() => { addWordToDictionary() }}
+                                onClick={() => { mode_search == 'translate'? addWordToDictionary(): changeWord(edit_word_id) }}
                             >
-                                Добавить слово в словарь
+                               {mode_search == 'translate'?' Добавить слово в словарь': 'Сохранить значения'}
                             </button>     
                         : '' 
                     }
