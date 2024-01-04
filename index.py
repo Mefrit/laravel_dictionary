@@ -1,6 +1,8 @@
-from fastapi import FastAPI, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+# from fastapi import FastAPI, status
+# from fastapi.middleware.cors import CORSMiddleware
+# from fastapi.staticfiles import StaticFiles
+from flask import Flask
+from flask import url_for
 from app.database import engine
 from app.models.main_class_models import NewWord, SearchWord, DeleteRaw, EditWord
 from sqlalchemy.orm import Session
@@ -10,7 +12,9 @@ from app.database import Base, SessionLocal
 from  sqlalchemy.sql.expression import func, select
 from sqlalchemy.orm.attributes import set_committed_value
 
-app = FastAPI()
+
+
+app = Flask(__name__)
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,33 +30,30 @@ def get_db():
     finally:
         db.close()
 
+# url_for('static', filename='style.css')
+# app.mount("/public", StaticFiles(directory="public"), name="public")
 
-app.mount("/public", StaticFiles(directory="public"), name="public")
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"]
+# )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
-
-@app.get('/')
+@app.route('/')
 def root():
     return {"message": "Hello World"}
 
-@app.post('/load_dictionary')
+@app.route('/load_dictionary')
 def load_dictionary():
     return {"result": True, "list": ["Hello Worl!!!d"]}
 
-@app.get('/load')
+@app.route('/load')
 async def load():
     return {"list": ["Hello it is work!!!"]}
 
-
-
-
-@app.post('/addWordToDictionary', status_code=status.HTTP_201_CREATED)
+@app.route('/addWordToDictionary', methods=['POST'])
 def addWordToDictionary(word_raw: NewWord):
     """
     добавит новое словов в словарь
@@ -71,17 +72,17 @@ def addWordToDictionary(word_raw: NewWord):
 
     return {'result': True, 'word_id': str(id)}
 
-@app.post('/editWord', status_code=status.HTTP_201_CREATED)
-def editWord(word_raw: EditWord):
+@app.route('/editWord', methods=['POST'])
+def editWord(word_id, rus_value, chinese_value):
     """
     добавит новое словов в словарь
     """
     session = Session(bind=engine, expire_on_commit=False)
     
-    rows = session.query(WordsTable).filter(WordsTable.id == word_raw.word_id).update(
+    rows = session.query(WordsTable).filter(WordsTable.id == word_id).update(
         {
-            'rus_value': word_raw.rus_value,
-            'chinese_value': word_raw.chinese_value
+            'rus_value': rus_value,
+            'chinese_value': chinese_value
         }
     )
    
@@ -95,8 +96,8 @@ def editWord(word_raw: EditWord):
 
     return {'result': True, 'rows': str(rows)}
 
-@app.post("/FindTranslate")
-async def find_translate(word_raw: SearchWord):
+@app.route("/FindTranslate", methods=['POST'])
+def FindTranslate(word_raw: SearchWord):
     search_value = word_raw.search_value.lower()
     session = Session(bind=engine, expire_on_commit=False)
     results = session.query(WordsTable).filter(
@@ -108,8 +109,8 @@ async def find_translate(word_raw: SearchWord):
 
     return {'result': True, 'list': results}
 
-@app.post("/Delete")
-def find_translate(word_raw: DeleteRaw):
+@app.route("/Delete", methods=['POST'])
+def Delete(word_raw: DeleteRaw):
 
     session = Session(bind=engine, expire_on_commit=False)
 
@@ -119,12 +120,19 @@ def find_translate(word_raw: DeleteRaw):
     session.commit()
     return {'result': True, 'word': word}
 
-@app.get("/GetRandomWords")
-def find_translate():
+@app.route("/GetRandomWords")
+def GetRandomWords():
 
     session = Session(bind=engine, expire_on_commit=False)
     results = session.query(WordsTable).order_by(
             func.random()
         ).limit(40).all()
 
-    return {'result': True, 'list': results}
+    return {'result': True, 'list':[
+            {'id': _.id,'rus_value': _.rus_value,'chinese_value': _.chinese_value} for _ in results
+        ]
+    }
+
+
+
+app.run(debug = True)
