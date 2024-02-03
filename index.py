@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.models.base_table_models import WordsTable
 from app.database import Base, SessionLocal 
 
-from  sqlalchemy.sql.expression import func, select
+from sqlalchemy.sql.expression import func, select
 from sqlalchemy.orm.attributes import set_committed_value
 
 

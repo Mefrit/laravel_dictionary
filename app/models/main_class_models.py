@@ -4,9 +4,9 @@ from pydantic import BaseModel
 
 class WordList(BaseModel):
     name: str
-    description: str | None = None
+    description: str
     price: float
-    tax: float | None = None
+    tax: float 
 
 class NewWord(BaseModel):
     rus_value: str
