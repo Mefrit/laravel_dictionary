@@ -7,17 +7,14 @@ from app.database import engine
 from app.models.main_class_models import NewWord, SearchWord, DeleteRaw, EditWord
 from sqlalchemy.orm import Session
 from app.models.base_table_models import WordsTable
-from app.database import Base, SessionLocal 
+from app.database import Base, SessionLocal
 
 from sqlalchemy.sql.expression import func, select
 from sqlalchemy.orm.attributes import set_committed_value
-
+from flask import request
 
 
 app = Flask(__name__)
-
-Base.metadata.create_all(bind=engine)
-
 origins = [
     "http://localhost:3000",
     "localhost:3000"
@@ -29,17 +26,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-# url_for('static', filename='style.css')
-# app.mount("/public", StaticFiles(directory="public"), name="public")
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"]
-# )
 
 @app.route('/')
 def root():
@@ -53,14 +39,15 @@ def load_dictionary():
 async def load():
     return {"list": ["Hello it is work!!!"]}
 
-@app.route('/addWordToDictionary', methods=['POST'])
-def addWordToDictionary(word_raw: NewWord):
+@app.post('/addWordToDictionary')
+def addWordToDictionary():
     """
     добавит новое словов в словарь
     """
+    word_raw = request.get_json(force=False, silent=False, cache=True)
     session = Session(bind=engine, expire_on_commit=False)
 
-    word_obj = WordsTable(rus_value=str(word_raw.rus_value), chinese_value=str(word_raw.chinese_value))
+    word_obj = WordsTable(rus_value=str(word_raw['rus_value']), chinese_value=str(word_raw['chinese_value']))
 
     session.add(word_obj)
 
@@ -72,61 +59,73 @@ def addWordToDictionary(word_raw: NewWord):
 
     return {'result': True, 'word_id': str(id)}
 
-@app.route('/editWord', methods=['POST'])
-def editWord(word_id, rus_value, chinese_value):
+@app.post('/editWord')
+def editWord():
     """
-    добавит новое словов в словарь
+    редактирует новое словов в словарь
     """
-    session = Session(bind=engine, expire_on_commit=False)
-    
-    rows = session.query(WordsTable).filter(WordsTable.id == word_id).update(
-        {
-            'rus_value': rus_value,
-            'chinese_value': chinese_value
-        }
-    )
-   
-    # session.add(word)
-    # set_committed_value(word, 'rus_value', word_raw.rus_value)
-    # set_committed_value(word, 'chinese_value', word_raw.chinese_value)
+    word_raw = request.get_json(force=False, silent=False, cache=True)
+    try:
+        session = Session(bind=engine, expire_on_commit=False)
+        word_id = int(word_raw['word_id'])
 
-    session.commit()
-    # id = word.id
-    # session.close()
-
+        rows = session.query(WordsTable).filter(WordsTable.id == word_id).update(
+            {
+                'rus_value': word_raw['rus_value'],
+                'chinese_value': word_raw['chinese_value']
+            }
+        )
+        session.commit()
+    except:
+        return {'result': False, 'message': 'Ошибка при редактировании слова. Проверьте входные значения'}
     return {'result': True, 'rows': str(rows)}
 
-@app.route("/FindTranslate", methods=['POST'])
-def FindTranslate(word_raw: SearchWord):
-    search_value = word_raw.search_value.lower()
+@app.post("/FindTranslate")
+def FindTranslate():
+    """
+    Поиск перевода
+    """
+    word_raw = request.get_json(force=False, silent=False, cache=True)
+
+    search_value = word_raw['search_value']
+    mode = word_raw['mode']
     session = Session(bind=engine, expire_on_commit=False)
+ 
     results = session.query(WordsTable).filter(
         WordsTable.rus_value.startswith(search_value) \
-        if word_raw.mode == 'russian'\
-        else  \
+        if mode == 'russian'\
+        else \
             WordsTable.chinese_value.startswith(search_value)
     ).all()
+    return {'result': True, 'list': [{'rus_value': _.rus_value, 'chinese_value': _.chinese_value, 'id': _.id} for _ in results]}
 
-    return {'result': True, 'list': results}
-
-@app.route("/Delete", methods=['POST'])
-def Delete(word_raw: DeleteRaw):
-
+@app.post("/Delete")
+def Delete():
+    """
+    Удаление слвоа из словаря
+    """
+    word_raw = request.get_json(force=False, silent=False, cache=True)
     session = Session(bind=engine, expire_on_commit=False)
-
-    word = session.query(WordsTable).filter(WordsTable.id == word_raw.word_id).one()
-    # если пользователь найден, удаляем его
-    session.delete(word)  # удаляем объект
-    session.commit()
-    return {'result': True, 'word': word}
+    try:
+        word = session.query(WordsTable).filter(WordsTable.id == int(word_raw['word_id'])).one()
+        # если пользователь найден, удаляем его
+        print(word)
+        session.delete(word)  # удаляем объект
+        session.commit()
+    except:
+        return {'result': False, 'message': 'ошибка при удалении слова'}
+    
+    return {'result': True, 'word': {'id': word.id}}
 
 @app.route("/GetRandomWords")
 def GetRandomWords():
-
+    """
+    Получение рандомного списка слов
+    """
     session = Session(bind=engine, expire_on_commit=False)
     results = session.query(WordsTable).order_by(
-            func.random()
-        ).limit(40).all()
+        func.random()
+    ).limit(40).all()
 
     return {'result': True, 'list':[
             {'id': _.id,'rus_value': _.rus_value,'chinese_value': _.chinese_value} for _ in results
@@ -134,5 +133,5 @@ def GetRandomWords():
     }
 
 
-
-app.run(debug = True)
+if __name__ == '__main__':
+    app.run()
